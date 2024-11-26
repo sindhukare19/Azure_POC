@@ -1,0 +1,94 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "hostingPlanName": {
+            "type": "string"
+        },
+        "serverFarmResourceGroup": {
+            "type": "string"
+        },
+        "alwaysOn": {
+            "type": "bool"
+        },
+        "currentStack": {
+            "type": "string"
+        },
+        "phpVersion": {
+            "type": "string"
+        },
+        "netFrameworkVersion": {
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('name')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[parameters('location')]",
+            "tags": null,
+            "dependsOn": [
+                "microsoft.insights/components/demotejaswiapp1"
+            ],
+            "properties": {
+                "name": "[parameters('name')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference('microsoft.insights/components/demotejaswiapp1', '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                            "value": "[reference('microsoft.insights/components/demotejaswiapp1', '2015-05-01').ConnectionString]"
+                        },
+                        {
+                            "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "XDT_MicrosoftApplicationInsights_Mode",
+                            "value": "default"
+                        }
+                    ],
+                    "metadata": [
+                        {
+                            "name": "CURRENT_STACK",
+                            "value": "[parameters('currentStack')]"
+                        }
+                    ],
+                    "phpVersion": "[parameters('phpVersion')]",
+                    "netFrameworkVersion": "[parameters('netFrameworkVersion')]",
+                    "alwaysOn": "[parameters('alwaysOn')]"
+                },
+                "serverFarmId": "[concat('/subscriptions/', parameters('subscriptionId'),'/resourcegroups/', parameters('serverFarmResourceGroup'), '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                "clientAffinityEnabled": true
+            }
+        },
+        {
+            "apiVersion": "2020-02-02-preview",
+            "name": "demotejaswiapp1",
+            "type": "microsoft.insights/components",
+            "location": "centralus",
+            "tags": null,
+            "dependsOn": [],
+            "properties": {
+                "ApplicationId": "[parameters('name')]",
+                "Request_Source": "IbizaWebAppExtensionCreate",
+                "Flow_Type": "Bluefield",
+                "Application_Type": "web",
+                "WorkspaceResourceId": "/subscriptions/c1aaf71e-4569-49d0-8b9e-07710efd6944/resourcegroups/defaultresourcegroup-cus/providers/microsoft.operationalinsights/workspaces/defaultworkspace-c1aaf71e-4569-49d0-8b9e-07710efd6944-cus"
+            }
+        }
+    ]
+}

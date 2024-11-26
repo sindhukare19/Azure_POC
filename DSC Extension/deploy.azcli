@@ -1,0 +1,2 @@
+az login
+az vm extension list --resource-group DemoRG --vm-name myVM -o table

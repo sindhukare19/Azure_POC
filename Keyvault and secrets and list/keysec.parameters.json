@@ -1,0 +1,46 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "keyVaultName": {
+            "value": "Demotejavault1" 
+        },
+        "location": {
+            "value": "eastus" 
+        },
+        "enabledForDeployment": {
+            "value": false
+        },
+        "enabledForDiskEncryption": {
+            "value": false
+        },
+        "enabledForTemplateDeployment": {
+            "value": false
+        },
+        "tenantId": {
+            "value": "a46a203a-5af4-4f69-a6f4-3aeeed1d14c7" 
+        },
+        "objectId": {
+            "value": "bba2c41d-d1ad-4ad4-a7ad-1139ab6471a0" 
+        },
+        "keysPermissions": {
+            "value": [
+              "list"
+            ]
+        },
+        "secretsPermissions": {
+            "value": [
+              "list"
+            ]
+        },
+        "skuName": {
+            "value": "Standard"
+        },
+        "secretName": {
+            "value": "Tejaswisec" 
+        },
+        "secretValue": {
+            "value": "Tejaswi@123" 
+        }
+    }
+}

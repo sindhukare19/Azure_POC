@@ -1,0 +1,2 @@
+az login
+az deployment group create --resource-group DemoRG --template-file keysec.json --parameters keysec.parameters.json

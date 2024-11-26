@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "storageAccountName": {
+            "type": "string"
+        },
+        "webAppName": {
+          "type": "string"
+        },
+        "appServicePlanName": {
+          "type": "string"
+        }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2019-06-01",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "name": "[variables('webAppName')]",
+      "apiVersion": "2019-08-01",
+      "location": "[parameters('location')]",
+      "kind": "app",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      }
+    }
+  ]
+}
