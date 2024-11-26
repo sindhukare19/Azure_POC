@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "value": "66fc6f23-e3f1-480b-9887-ca593efba10e"
+        },
+        "name": {
+            "value": "STAGE-SHARE"
+        },
+        "location": {
+            "value": "France Central"
+        },
+        "hostingPlanName": {
+            "value": "kantar-public"
+        },
+        "serverFarmResourceGroup": {
+            "value": "kantar-public"
+        },
+        "alwaysOn": {
+            "value": true
+        },
+        "currentStack": {
+            "value": "dotnet"
+        },
+        "phpVersion": {
+            "value": "OFF"
+        },
+        "netFrameworkVersion": {
+            "value": "v4.0"
+        }
+    }
+}

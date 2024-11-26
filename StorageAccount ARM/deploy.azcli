@@ -1,0 +1,2 @@
+az login
+az deployment group create --resource-group demoorg --template-file storage.json --parameters storage.parameters.json

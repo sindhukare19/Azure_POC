@@ -1,0 +1,2 @@
+az login
+az deployment group create --resource-group demoorg --template-file stacc.json --parameters stacc.parameters.json

@@ -1,0 +1,3 @@
+az login
+az group create --name demorg --location "South India"
+az deployment group create --resource-group demorg --template-file webcontainer.json --parameters webcontainer.parameters.json

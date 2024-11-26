@@ -1,0 +1,2 @@
+az login
+az deployment group create --resource-group Demorg --template-file stccmul.json --parameters stccmul.parameters.json
