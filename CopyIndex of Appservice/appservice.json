@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "webappCount": {
+      "type": "int",
+      "defaultValue": 2
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "[concat(copyIndex(),'webapp', uniqueString(resourceGroup().id))]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Free"
+      },
+      "kind": "",
+      "properties": {},
+      "copy": {
+        "name": "webappcopy",
+        "count": "[parameters('webappCount')]"
+      }
+    }
+  ],
+  "outputs": {}
+}

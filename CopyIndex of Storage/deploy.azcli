@@ -1,0 +1,3 @@
+az login
+az group create --name ARMstorageacc --location centralus
+az deployment group create --resource-group ARMstorageacc --template-file copyindexstorage.json --parameters copyindexstorage.parameters.json

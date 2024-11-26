@@ -1,0 +1,2 @@
+az login
+az deployment group create --resource-group demoorg --template-file webapp.json --parameters webapp.parameters.json
