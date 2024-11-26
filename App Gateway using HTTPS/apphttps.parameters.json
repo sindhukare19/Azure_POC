@@ -1,0 +1,50 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "eastus"
+        },
+        "applicationGatewayName": {
+            "value": "demohtppsgateway67"
+        },
+        "tier": {
+            "value": "Standard"
+        },
+        "skuSize": {
+            "value": "Standard_Small"
+        },
+        "capacity": {
+            "value": 2
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "zones": {
+            "value": []
+        },
+        "virtualNetworkName": {
+            "value": "demovnet36"
+        },
+        "virtualNetworkPrefix": {
+            "value": [
+                "10.0.0.0/16"
+            ]
+        },
+        "publicIpAddressName": {
+            "value": "demoip34"
+        },
+        "sku": {
+            "value": "Basic"
+        },
+        "allocationMethod": {
+            "value": "Dynamic"
+        },
+        "publicIpZones": {
+            "value": []
+        },
+        "keyvaultname": {
+            "value": "demoteja123" 
+    }
+}
+}

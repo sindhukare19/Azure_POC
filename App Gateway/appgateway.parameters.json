@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "southindia"
+        },
+        "applicationGatewayName": {
+            "value": "demogateway"
+        },
+        "tier": {
+            "value": "Standard"
+        },
+        "skuSize": {
+            "value": "Standard_Small"
+        },
+        "capacity": {
+            "value": 2
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "zones": {
+            "value": []
+        },
+        "virtualNetworkName": {
+            "value": "demovnet"
+        },
+        "virtualNetworkPrefix": {
+            "value": [
+                "10.1.0.0/16"
+            ]
+        },
+        "publicipaddressname": {
+            "value": "demovmipaddress" 
+        }
+    }
+}

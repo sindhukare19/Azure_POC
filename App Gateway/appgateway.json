@@ -1,0 +1,186 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "applicationGatewayName": {
+            "type": "string"
+        },
+        "tier": {
+            "type": "string"
+        },
+        "skuSize": {
+            "type": "string"
+        },
+        "capacity": {
+            "type": "int",
+            "defaultValue": 2
+        },
+        "subnetName": {
+            "type": "string"
+        },
+        "zones": {
+            "type": "array"
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "virtualNetworkPrefix": {
+            "type": "array"
+        },
+        "publicipaddressname": {
+            "type": "string"
+        }
+    },
+  "variables": {
+    "vnetId": "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+    "applicationGatewayId": "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName'))]",
+    //"publicIPRef": "[resourceId('Microsoft.Network/publicipaddress/', parameters('publicipaddressName'))]",
+    "publicIPRef": "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicipaddressName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-09-01",
+      "name": "[parameters('publicipaddressName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Dynamic",
+        "idleTimeoutInMinutes": 4
+      }
+    },
+    {
+      "name": "[parameters('applicationGatewayName')]",
+      "type": "Microsoft.Network/applicationGateways",
+      "apiVersion": "2019-09-01",
+      "location": "[parameters('location')]",
+      "zones": "[parameters('zones')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+      ],
+      "tags": {},
+      "properties": {
+        "sku": {
+          "name": "[parameters('skuSize')]",
+          "tier": "[parameters('tier')]",
+          "capacity": "[parameters('capacity')]"
+        },
+        "gatewayIPConfigurations": [
+          {
+            "name": "appGatewayIpConfig",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ],
+        "frontendIPConfigurations": [
+          {
+            "name": "appGwPublicFrontendIp",
+            "properties": {
+              "PublicIPAddress": {
+                "id": "[variables('publicIPRef')]"
+              }
+            }
+          }
+        ],
+        "frontendPorts": [
+          {
+            "name": "port_80",
+            "properties": {
+              "Port": 80
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "demobackend",
+            "properties": {
+              "backendAddresses": [
+                {
+                  "fqdn": "demoappwebtejaswi6.azurewebsites.net"
+                },
+                {
+                  "fqdn": "deployapp00.azurewebsites.net"
+                }
+              ]
+            }
+          }
+        ],
+        "backendHttpSettingsCollection": [
+          {
+            "name": "demohttp",
+            "properties": {
+              "Port": 80,
+              "Protocol": "Http",
+              "cookieBasedAffinity": "Disabled",
+              "requestTimeout": 20
+            }
+          }
+        ],
+        "httpListeners": [
+          {
+            "name": "demo",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[concat(variables('applicationGatewayId'), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+              },
+              "frontendPort": {
+                "id": "[concat(variables('applicationGatewayId'), '/frontendPorts/port_80')]"
+              },
+              "protocol": "Http"
+            }
+          }
+        ],
+        "requestRoutingRules": [
+          {
+            "Name": "demorule",
+            "properties": {
+              "RuleType": "Basic",
+              "httpListener": {
+                "id": "[concat(variables('applicationGatewayId'), '/httpListeners/demo')]"
+              },
+              "backendAddressPool": {
+                "id": "[concat(variables('applicationGatewayId'), '/backendAddressPools/demobackend')]"
+              },
+              "backendHttpSettings": {
+                "id": "[concat(variables('applicationGatewayId'), '/backendHttpSettingsCollection/demohttp')]"
+              }
+            }
+          }
+        ],
+        "enableHttp2": false,
+        "sslCertificates": [],
+        "probes": []
+      }
+    },
+    {
+      "apiVersion": "2019-09-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[parameters('virtualNetworkPrefix')]"
+        },
+        "subnets": [
+          {
+            "name": "default",
+            "properties": {
+              "addressPrefix": "10.1.0.0/24"
+            }
+          }
+        ]
+      }
+    }
+
+  ]
+}

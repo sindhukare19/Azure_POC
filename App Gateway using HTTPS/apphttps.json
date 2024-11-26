@@ -1,0 +1,221 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "applicationGatewayName": {
+            "type": "string"
+        },
+        "tier": {
+            "type": "string"
+        },
+        "skuSize": {
+            "type": "string"
+        },
+        "capacity": {
+            "type": "int",
+            "defaultValue": 2
+        },
+        "subnetName": {
+            "type": "string"
+        },
+        "zones": {
+            "type": "array"
+        },
+        "virtualNetworkName": {
+            "type": "string"
+        },
+        "virtualNetworkPrefix": {
+            "type": "array"
+        },
+        "publicIpAddressName": {
+            "type": "string"
+        },
+        "sku": {
+            "type": "string"
+        },
+        "allocationMethod": {
+            "type": "string"
+        },
+        "publicIpZones": {
+            "type": "array"
+        },
+        "keyvaultname": {
+            "type": "string"
+        }
+        
+    },
+    "variables": {
+        "vnetId": "[resourceId('DemoRG','Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+        "publicIPRef": "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicIpAddressName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "applicationGatewayId": "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName'))]",
+        "dsIdentityName": "[concat(parameters('applicationGatewayName'), '-managedidentity')]"
+    },
+    "resources": [
+        {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "name": "[variables('dsIdentityName')]",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]"
+    },
+        
+        {
+            "name": "[parameters('applicationGatewayName')]",
+            "type": "Microsoft.Network/applicationGateways",
+            "apiVersion": "2019-09-01",
+            "location": "[parameters('location')]",
+            "zones": "[parameters('zones')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIPAddresses/', parameters('publicIpAddressName'))]"
+            ],
+            "tags": {},
+             "identity": {
+        "type": "UserAssigned",
+       "userAssignedIdentities": {
+         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('dsIdentityName'))]": {
+         }
+       }
+     },
+            "properties": {
+                
+                "sku": {
+                    "name": "[parameters('skuSize')]",
+                    "tier": "[parameters('tier')]",
+                    "capacity": "[parameters('capacity')]"
+                },
+                "gatewayIPConfigurations": [
+                    {
+                        "name": "appGatewayIpConfig",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "sslCertificates": [
+       {
+            "name": "demoteja123",
+            "properties": {
+              "keyVaultSecretId": "https://demoteja123.vault.azure.net/secrets/demossl/204aa9129844457690d987e01e8305a3"
+            }
+          }
+        ],
+                "frontendIPConfigurations": [
+                    {
+                        "name": "appGwPublicFrontendIp",
+                        "properties": {
+                            "PublicIPAddress": {
+                                "id": "[variables('publicIPRef')]"
+                            }
+                        }
+                    }
+                ],
+                "frontendPorts": [
+                    {
+                        "name": "port_443",
+                        "properties": {
+                            "Port": 443
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "demobackend",
+                        "properties": {
+                            "backendAddresses": [
+                                {
+                                    "fqdn": "demoappwebtejaswi6.azurewebsites.net"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "backendHttpSettingsCollection": [
+                    {
+                        "name": "demo",
+                        "properties": {
+                            "Port": 80,
+                            "Protocol": "Http",
+                            "cookieBasedAffinity": "Disabled",
+                            "requestTimeout": 20
+                        }
+                    }
+                ],
+                "httpListeners": [
+                    {
+                        "name": "demolistener",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat(variables('applicationGatewayId'), '/frontendIPConfigurations/appGwPublicFrontendIp')]"
+                            },
+                            "frontendPort": {
+                                "id": "[concat(variables('applicationGatewayId'), '/frontendPorts/port_443')]"
+                            },
+                            "protocol": "Https",
+                            "sslCertificate": {
+                                "id": "[concat(variables('applicationGatewayId'), '/sslCertificates/mycert')]"
+                            }
+                        }
+                    }
+                ],
+                "requestRoutingRules": [
+                    {
+                        "Name": "demorule",
+                        "properties": {
+                            "RuleType": "Basic",
+                            "httpListener": {
+                                "id": "[concat(variables('applicationGatewayId'), '/httpListeners/demolistener')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[concat(variables('applicationGatewayId'), '/backendAddressPools/demobackend')]"
+                            },
+                            "backendHttpSettings": {
+                                "id": "[concat(variables('applicationGatewayId'), '/backendHttpSettingsCollection/demo')]"
+                            }
+                        }
+                    }
+                ],
+                "enableHttp2": false,
+                
+                "probes": []
+            }
+        },
+        {
+            "apiVersion": "2019-09-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('virtualNetworkName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[parameters('virtualNetworkPrefix')]"
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2020-05-01",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[parameters('publicIpAddressName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('sku')]"
+            },
+            "zones": "[parameters('publicIpZones')]",
+            "properties": {
+                "publicIPAllocationMethod": "[parameters('allocationMethod')]"
+            }
+        }
+    ]
+}
